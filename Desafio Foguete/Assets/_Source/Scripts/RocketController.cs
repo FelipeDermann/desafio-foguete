@@ -10,6 +10,7 @@ public class RocketController : MonoBehaviour
     
     public float rocketSpeed;
     public float secondsOfFuel;
+    public float maxWindStrength;
 
     public ParticleSystem propulsionParticle;
 
@@ -82,13 +83,15 @@ public class RocketController : MonoBehaviour
     IEnumerator GainSpeed()
     {
         LaunchStarted();
+        CameraManager.Instance.LaunchCameraChange();
+        
         _audioSrc.Play();
+        StartCoroutine(AddConstantForce());
         
         _moving = true;
         _rb.isKinematic = false;
         
         float time = 0;
-        float cForceToGive = 0;
         float d = 0;
         
         while (time < secondsOfFuel)
@@ -96,12 +99,7 @@ public class RocketController : MonoBehaviour
             d += Time.deltaTime;
             time = Mathf.Lerp(0, secondsOfFuel, d/secondsOfFuel);
             
-            _rb.AddForce(transform.forward * rocketSpeed, ForceMode.Force);
-
-            cForceToGive = Mathf.Lerp(0,0.8f, d/4);
-            Vector3 constForce = Vector3.zero;
-            constForce.x = cForceToGive;
-            _constForce.force = constForce;
+            _rb.AddForce(transform.forward * (rocketSpeed * Time.fixedDeltaTime), ForceMode.Force);
             
             if (time >= secondsOfFuel * 0.5f && !_detached)
             {
@@ -121,6 +119,27 @@ public class RocketController : MonoBehaviour
         propulsionParticle.Stop();
     }
 
+    IEnumerator AddConstantForce()
+    {
+        yield return new WaitForSeconds(1);
+        
+        float time = 0;
+        float cForceToGive = 0;
+        
+        while (cForceToGive < maxWindStrength)
+        {
+            time += Time.deltaTime;
+            
+            cForceToGive = Mathf.Lerp(0,maxWindStrength, time);
+            
+            Vector3 constForce = Vector3.zero;
+            constForce.x = cForceToGive;
+            _constForce.force = constForce;
+            
+            yield return null;
+        }
+    }
+
     void DetachLowerPart(Vector3 oldVelocity)
     {
         _detached = true;
@@ -129,7 +148,6 @@ public class RocketController : MonoBehaviour
 
     void ChangeRotation(float sliderValue)
     {
-        
         float xRot = Mathf.Lerp(-160, -20, sliderValue);
         var rotation = transform.rotation;
         
@@ -147,6 +165,7 @@ public class RocketController : MonoBehaviour
             {
                 _rb.drag = 0;
                 _moving = false;
+                UIManager.Instance.ShowRestartButton();
             }
         }
     }

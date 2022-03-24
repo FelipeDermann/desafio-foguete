@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 681e1e73f6d46f84ba1bf13577c0b408, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -1214,7 +1214,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 2.4435958e-30, w: 2.2e-44}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -1553,6 +1553,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 937801943}
+  - component: {fileID: 937801944}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -1576,6 +1577,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &937801944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 937801942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e9dd0b02c12a6348abb917fbf02bcfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cam: {fileID: 0}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1908,7 +1922,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   countdownObj: {fileID: 159086228}
-  buttonGameObj: {fileID: 675834558}
+  startButtonGameObj: {fileID: 675834558}
+  restartButtonGameObj: {fileID: 1812397790}
   rotationSliderGameObj: {fileID: 1886910990}
   altitudeText: {fileID: 2044950219}
 --- !u!1 &1270046339
@@ -1987,7 +2002,7 @@ Terrain:
   serializedVersion: 6
   m_TerrainData: {fileID: 15600000, guid: 7f3ed64d65f4fc54caab891b482904ae, type: 2}
   m_TreeDistance: 5000
-  m_TreeBillboardDistance: 50
+  m_TreeBillboardDistance: 20
   m_TreeCrossFadeLength: 5
   m_TreeMaximumFullLODCount: 50
   m_DetailObjectDistance: 80
@@ -2853,7 +2868,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1095581673}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: PlayCountdownAnim
+        m_MethodName: RestartScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3217,6 +3232,14 @@ PrefabInstance:
     - target: {fileID: 7977461790882944220, guid: 7e59d7d48968c964897070aa31ae0f3b, type: 3}
       propertyPath: m_UseGravity
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7977461790882944221, guid: 7e59d7d48968c964897070aa31ae0f3b, type: 3}
+      propertyPath: rocketSpeed
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 7977461790882944221, guid: 7e59d7d48968c964897070aa31ae0f3b, type: 3}
+      propertyPath: maxWindStrength
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 7977461790882944226, guid: 7e59d7d48968c964897070aa31ae0f3b, type: 3}
       propertyPath: m_RootOrder

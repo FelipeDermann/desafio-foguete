@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class UIManager : MonoBehaviour
 {
@@ -11,7 +13,8 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
     
     public Countdown countdownObj;
-    public GameObject buttonGameObj;
+    public GameObject startButtonGameObj;
+    public GameObject restartButtonGameObj;
     public GameObject rotationSliderGameObj;
     public TextMeshProUGUI altitudeText;
 
@@ -29,7 +32,7 @@ public class UIManager : MonoBehaviour
 
     public void PlayCountdownAnim()
     {
-        buttonGameObj.SetActive(false);
+        startButtonGameObj.SetActive(false);
         rotationSliderGameObj.SetActive(false);
         countdownObj.StartCountdown();
     }
@@ -42,5 +45,15 @@ public class UIManager : MonoBehaviour
     public void ChangeRocketRotation(float sliderValue)
     {
         RocketRotationChanged(sliderValue);
+    }
+
+    public void ShowRestartButton()
+    {
+        restartButtonGameObj.SetActive(true);
+    }
+
+    public void RestartScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
