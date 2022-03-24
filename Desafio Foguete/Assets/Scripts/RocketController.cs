@@ -5,28 +5,41 @@ using UnityEngine;
 
 public class RocketController : MonoBehaviour
 {
+    public static Action LaunchStarted;
+    public static Action<Vector3> LowerPartDetached;
+    
     public float rocketSpeed;
     public float secondsOfFuel;
 
-    public GameObject lowerPartGameObj;
+    public ParticleSystem propulsionParticle;
 
     private Rigidbody _rb;
+    private ConstantForce _constForce;
     private bool _detached = false;
     private bool _moving = false;
     private bool _maxAltitudeSaved = false;
 
     private float _maxAltitude;
-    
+
+    private Animator _anim;
+    private AudioSource _audioSrc;
+    private int OpenParachute = Animator.StringToHash("OpenParachute");
+
     private void Awake()
     {
         Countdown.StartRocketLaunch += StartLaunch;
+        UIManager.RocketRotationChanged += ChangeRotation;
 
         _rb = GetComponent<Rigidbody>();
+        _constForce = GetComponent<ConstantForce>();
+        _anim = GetComponent<Animator>();
+        _audioSrc = GetComponent<AudioSource>();
     }
 
     private void OnDestroy()
     {
         Countdown.StartRocketLaunch -= StartLaunch;
+        UIManager.RocketRotationChanged -= ChangeRotation;
     }
 
     void Update()
@@ -45,7 +58,9 @@ public class RocketController : MonoBehaviour
         {
             _maxAltitudeSaved = true;
             UIManager.Instance.SetAltitudeUI(_maxAltitude);
-                
+            _anim.SetTrigger(OpenParachute);    
+            _rb.drag = 1;
+
             return;
         }
         _maxAltitude = transform.position.y;
@@ -61,15 +76,19 @@ public class RocketController : MonoBehaviour
     {
         Debug.Log("Starting rocket launch!");
 
-        StartCoroutine(SpeedUp());
+        StartCoroutine(GainSpeed());
     }
 
-    IEnumerator SpeedUp()
+    IEnumerator GainSpeed()
     {
+        LaunchStarted();
+        _audioSrc.Play();
+        
         _moving = true;
         _rb.isKinematic = false;
         
         float time = 0;
+        float cForceToGive = 0;
         float d = 0;
         
         while (time < secondsOfFuel)
@@ -77,33 +96,58 @@ public class RocketController : MonoBehaviour
             d += Time.deltaTime;
             time = Mathf.Lerp(0, secondsOfFuel, d/secondsOfFuel);
             
-            _rb.AddForce(Vector3.up * rocketSpeed, ForceMode.Force);
+            _rb.AddForce(transform.forward * rocketSpeed, ForceMode.Force);
+
+            cForceToGive = Mathf.Lerp(0,0.8f, d/4);
+            Vector3 constForce = Vector3.zero;
+            constForce.x = cForceToGive;
+            _constForce.force = constForce;
             
-            if (time >= secondsOfFuel * 0.5f && !_detached) DetachLowerPart(_rb.velocity);
-            
+            if (time >= secondsOfFuel * 0.5f && !_detached)
+            {
+                DetachLowerPart(_rb.velocity);
+                propulsionParticle.Play();
+
+                //restart the sound so that it seems that the second propulsion
+                //started when the lower one stopped
+                _audioSrc.Stop();
+                _audioSrc.Play();
+            }
             yield return null;
         }
-        
-        
-        _rb.drag = 1;
+
+        _rb.useGravity = true;
+        _audioSrc.Stop();
+        propulsionParticle.Stop();
     }
 
     void DetachLowerPart(Vector3 oldVelocity)
     {
         _detached = true;
-        lowerPartGameObj.transform.parent = null;
+        LowerPartDetached(oldVelocity);
+    }
+
+    void ChangeRotation(float sliderValue)
+    {
         
-        Rigidbody newRb = lowerPartGameObj.AddComponent<Rigidbody>();
-        newRb.velocity = oldVelocity;
-        newRb.angularDrag = 0.1f;
-        newRb.drag = 1;
+        float xRot = Mathf.Lerp(-160, -20, sliderValue);
+        var rotation = transform.rotation;
+        
+        Vector3 newRot = new Vector3(xRot, 90, rotation.z);
+        rotation = Quaternion.Euler(newRot);
+        
+        transform.rotation = rotation;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            if (_detached) _moving = false;
+            if (_detached && _moving)
+            {
+                _rb.drag = 0;
+                _moving = false;
+            }
         }
     }
 }

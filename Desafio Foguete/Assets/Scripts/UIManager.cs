@@ -6,10 +6,13 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
+    public static Action<float> RocketRotationChanged;
+    
     public static UIManager Instance;
     
     public Countdown countdownObj;
     public GameObject buttonGameObj;
+    public GameObject rotationSliderGameObj;
     public TextMeshProUGUI altitudeText;
 
     private void Awake()
@@ -27,11 +30,17 @@ public class UIManager : MonoBehaviour
     public void PlayCountdownAnim()
     {
         buttonGameObj.SetActive(false);
+        rotationSliderGameObj.SetActive(false);
         countdownObj.StartCountdown();
     }
 
     public void SetAltitudeUI(float maxAltitude)
     {
         altitudeText.text = maxAltitude.ToString("F1");
+    }
+
+    public void ChangeRocketRotation(float sliderValue)
+    {
+        RocketRotationChanged(sliderValue);
     }
 }
